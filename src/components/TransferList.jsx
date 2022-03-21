@@ -45,7 +45,7 @@ const TransferList = ({
           </div>
           <div className="w-2/12 flex justify-center">
             <button
-              disabled={approvals[transfer.id]}
+              disabled={approvals && approvals[transfer.id]}
               className="disabled:bg-gray-500 rounded-lg text-[16px] px-2 py-1 border-[1px] hover:bg-gray-800"
               onClick={() => approveTransfer(transfer.id)}
             >
