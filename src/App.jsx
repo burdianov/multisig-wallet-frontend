@@ -26,9 +26,9 @@ function App() {
       const approvers = await wallet.methods.getApprovers().call();
       const quorum = await wallet.methods.quorum().call();
       const transfers = await wallet.methods.getTransfers().call();
-      // const approvalsByApprover = await wallet.methods
-      //   .getApprovalsByApprover(accounts[0])
-      //   .call();
+      const approvalsByApprover = await wallet.methods
+        .getApprovalsByApprover(accounts[0])
+        .call();
 
       setWeb3(web3);
       setAccounts(accounts);
@@ -36,7 +36,7 @@ function App() {
       setApprovers(approvers);
       setQuorum(quorum);
       setTransfers(transfers);
-      // setApprovals(approvalsByApprover);
+      setApprovals(approvalsByApprover);
     };
     init();
   }, []);
