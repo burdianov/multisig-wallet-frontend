@@ -15,9 +15,12 @@ const Navbar = ({ approvers, quorum, accounts }) => {
 
       <div className="flex w-1/6 justify-end">
         {!accounts ? (
-          <button className="text-[16px] font-semibold px-4 py-1 border rounded-2xl text-blue-400 hover:text-blue-500 border-blue-900 bg-[#172A42] ring-2 ring-gray-900 hover:border-blue-800 transition">
+          // <button className="text-[16px] font-semibold px-4 py-1 border rounded-2xl text-blue-400 hover:text-blue-500 border-blue-900 bg-[#172A42] ring-2 ring-gray-900 hover:border-blue-800 transition">
+          //   Connect Wallet
+          // </button>
+          <span className="text-[16px] font-semibold px-4 py-1 border rounded-2xl text-blue-400 border-blue-900 bg-[#172A42] ring-2 ring-gray-900 transition">
             Connect Wallet
-          </button>
+          </span>
         ) : (
           <p className="flex flex-col justify-center text-[16px] font-semibold px-4 py-1 border rounded-2xl text-blue-400 border-blue-900 bg-[#172A42] ring-2 ring-gray-900">
             {minimizeAddress(accounts[0])}
