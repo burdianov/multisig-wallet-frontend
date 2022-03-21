@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 import { getWeb3, getWallet } from './utils/contract';
 
 import './App.css';
-import Header from './components/Header';
-import NewTransfer from './components/NewTransfer';
+
+import Navbar from './components/Navbar';
 import TransferList from './components/TransferList';
+import NewTransfer from './components/NewTransfer';
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -14,6 +15,8 @@ function App() {
   const [approvers, setApprovers] = useState([]);
   const [quorum, setQuorum] = useState(undefined);
   const [transfers, setTransfers] = useState([]);
+  const [approvals, setApprovals] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -23,6 +26,9 @@ function App() {
       const approvers = await wallet.methods.getApprovers().call();
       const quorum = await wallet.methods.quorum().call();
       const transfers = await wallet.methods.getTransfers().call();
+      const approvalsByApprover = await wallet.methods
+        .getApprovalsByApprover(accounts[0])
+        .call();
 
       setWeb3(web3);
       setAccounts(accounts);
@@ -30,18 +36,34 @@ function App() {
       setApprovers(approvers);
       setQuorum(quorum);
       setTransfers(transfers);
+      setApprovals(approvalsByApprover);
     };
     init();
   }, []);
 
-  const createTransfer = (transfer) => {
-    wallet.methods
-      .createTransfer(transfer.amount, transfer.to)
+  const createTransfer = async (transfer) => {
+    setLoading(true);
+
+    await wallet.methods
+      .createTransfer(web3.utils.toWei(transfer.amount, 'ether'), transfer.to)
       .send({ from: accounts[0] });
+    const transfers = await wallet.methods.getTransfers().call();
+    setTransfers(transfers);
+
+    setLoading(false);
   };
 
-  const approveTransfer = (transferId) => {
-    wallet.methods.approveTransfer(transferId).send({ from: accounts[0] });
+  const approveTransfer = async (transferId) => {
+    await wallet.methods
+      .approveTransfer(transferId)
+      .send({ from: accounts[0] });
+    const transfers = await wallet.methods.getTransfers().call();
+    setTransfers(transfers);
+
+    const approvalsByApprover = await wallet.methods
+      .getApprovalsByApprover(accounts[0])
+      .call();
+    setApprovals(approvalsByApprover);
   };
 
   if (
@@ -51,17 +73,20 @@ function App() {
     typeof quorum === 'undefined' ||
     approvers.length === 0
   ) {
-    return <div>Loading...</div>;
+    return <Navbar approvers={approvers} quorum={quorum} accounts={accounts} />;
   }
 
   return (
     <div className="App">
-      <h1 className="flex justify-center text-gray-600 text-3xl font-bold mt-4">
-        Multisig Wallet
-      </h1>
-      <Header approvers={approvers} quorum={quorum} />
-      <NewTransfer createTransfer={createTransfer} />
-      <TransferList transfers={transfers} approveTransfer={approveTransfer} />
+      <Navbar approvers={approvers} quorum={quorum} accounts={accounts} />
+      <NewTransfer createTransfer={createTransfer} loading={loading} />
+      <TransferList
+        transfers={transfers}
+        approveTransfer={approveTransfer}
+        approvers={approvers}
+        approvals={approvals}
+        web3={web3}
+      />
     </div>
   );
 }
